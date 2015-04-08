@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ *  customer-teamsite-resource-config.xml
+ *
+ *  Customer resource configuration file for TeamSite ContentCenter.
+ *
+ *  All custom beans and services must be defined in this file.
+ *
+ *  Author: $Author: rpetti $
+ *  Version: $Id: //depot/wcm/release/TS7.5.0/teamsite/src/livesite/customer/etc/conf/livesite_customer/resources/customer-teamsite-resource-config.xml#1 $
+ *
+ *  Copyright &copy; 2006 Interwoven, Inc.
+ *  Spring framework is Copyright Interface21 ( http://www.interface21.com ), used under license.
+ *  All Rights Reserved.
+ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!-- define custom beans and services here -->
+
+  <!--
+   *  DeploymentTargets enable custom runtime home directory configuration for OpenDeploy deployments.
+   *  Each target points to a different runtime home directory and includes a set of patterns.
+   *  The patterns are matched, in order, against the area vpath of the deployment task.  The target directory
+   *  of the first match is used as the runtime home for that OpenDeployment.
+   *
+   *  NOTE: The default behavior only deploys files to the production node.
+   -->
+  <bean id="customer.teamsite.DeploymentService.OpenDeploy.DeploymentTargetMap"
+        parent="teamsite.DeploymentService.OpenDeploy.DeploymentTargetMap">
+    <property name="sourceMap">
+      <map>
+        <entry key="production">
+          <list>
+            <bean class="com.interwoven.livesite.deployment.model.DeploymentTarget">
+              <property name="targetName" value="LiveSiteRuntime"/>
+              <property name="targetNode" value="LiveSiteRuntime"/>
+              <property name="targetDirectory" value="${opendeploy.runtimeHome}"/>
+              <property name="filterPatterns">
+                <bean class="com.interwoven.livesite.common.util.PatternWrapper"
+                      factory-method="createList">
+                  <constructor-arg>
+                    <list>
+                      <!-- this list of patterns allows everything in all branches in all stores
+                           EXCEPT the iwadmin store -->
+                      <value>-^(//[^/]+)?/iwadmin/main/.*</value>
+                      <value>^(//[^/]+)?/.*?/main/.*</value>
+                      <!--
+                      enter as many value patterns as you like
+                      <value>/default/foo</value>
+                      -->
+                    </list>
+                  </constructor-arg>
+                </bean>
+              </property>
+            </bean>
+            <!--
+
+             This example hows how to add another target.   There is no limit to the number of targets
+             just remember that the first one matched is used.
+
+            <bean class="com.interwoven.livesite.deployment.model.DeploymentTarget">
+              <property name="targetDirectory" value="c:/iw-home/livesite/runtime/web"/>
+              <property name="targetName" value="LiveSiteRuntime"/>
+              <property name="targetNode" value="LiveSiteRuntime"/>
+              <property name="filterPatterns">
+                <bean class="com.interwoven.livesite.common.util.PatternWrapper"
+                      factory-method="createList">
+                  <constructor-arg>
+                    <list>
+                      <value>/default/main/foo</value>
+                      <value>/default/main/bar/baz</value>
+                      <value>/default/main/c.*</value>
+                    </list>
+                  </constructor-arg>
+                </bean>
+              </property>
+            </bean>
+            -->
+          </list>
+        </entry>
+      </map>
+    </property>
+  </bean>
+
+</beans>
